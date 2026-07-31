@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Red Cliffs 赤壁 — an animatic</title>
+<meta name="description" content="A procedurally rendered animatic of the Battle of Red Cliffs, from Romance of the Three Kingdoms. Every frame drawn in code; exports a real video file.">
+<link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span id="film-title-zh" class="zh"></span>
+    <span>
+      <strong id="film-title"></strong>
+      <em id="film-source"></em>
+    </span>
+  </div>
+  <div class="specs">
+    <span><b id="runtime"></b> runtime</span>
+    <span><b id="shot-count"></b> shots</span>
+    <span><b>1280×720</b> 30fps</span>
+  </div>
+</header>
+
+<main>
+  <section class="viewer">
+    <div class="stage-wrap">
+      <canvas id="stage" width="1280" height="720"></canvas>
+      <div class="rec-dot" aria-hidden="true"></div>
+    </div>
+
+    <div class="transport">
+      <button id="play" class="tbtn" aria-label="Play">▶</button>
+      <button id="restart" class="tbtn" aria-label="Restart" title="Restart">⟲</button>
+      <div id="progress" class="progress">
+        <input id="scrub" type="range" min="0" max="1000" value="0" step="1" aria-label="Scrub timeline">
+      </div>
+      <span id="clock" class="clock">00:00 / 00:00</span>
+      <button id="export" class="tbtn tbtn-primary">Export .webm</button>
+    </div>
+
+    <div class="meta">
+      <p id="slug" class="slug"></p>
+      <p id="action" class="action"></p>
+    </div>
+
+    <div class="options">
+      <label><input type="checkbox" id="slate"> Director's view <span class="dim">(burn shot data into frame)</span></label>
+      <label><input type="checkbox" id="sound" checked> Score</label>
+    </div>
+
+    <p id="status" class="status"></p>
+  </section>
+
+  <aside class="sidebar">
+    <h2>Shot list</h2>
+    <p class="dim tiny">Click any shot to jump to it. Space plays and pauses; arrows skip 5 seconds.</p>
+    <ol id="shotlist" class="shotlist"></ol>
+  </aside>
+</main>
+
+<footer>
+  <p>
+    Adapted from <b>Romance of the Three Kingdoms</b> (三國演義), attributed to Luo Guanzhong,
+    c. 14th century — public domain. Chapters 48–50.
+  </p>
+  <p class="dim">
+    This is an <b>animatic</b>: the timed storyboard a production cuts before it shoots. Every frame is
+    drawn procedurally in code — there is no photography, no footage and no generated imagery anywhere in it.
+  </p>
+</footer>
+
+<script type="module" src="assets/js/app.js"></script>
+</body>
+</html>
