@@ -2,6 +2,7 @@ import { Engine, fmt } from './engine.js';
 import { TIMELINE, RUNTIME, META } from './film.js';
 import { Score } from './audio.js';
 import { Recorder, download, isSupported, humanSize, pickMimeType } from './export.js';
+import * as P from './portraits.js';
 
 const $ = (s) => document.querySelector(s);
 
@@ -154,6 +155,52 @@ function setStatus(msg, isError = false) {
   el.classList.toggle('is-error', isError);
 }
 
+/* ---------------------------------- cast ---------------------------------- */
+
+function buildCastList() {
+  const keys = Object.keys(P.CAST);
+  $('#cast-list').innerHTML = keys.map((k) => {
+    const c = P.CAST[k];
+    const loaded = P.has(k);
+    const src = loaded ? P.info(k).source : '未载入';
+    return `
+      <li class="cast-row" data-key="${k}">
+        <span class="cast-name">${esc(c.zh)}<span class="dim"> ${esc(c.en)}</span></span>
+        <span class="cast-src ${loaded ? '' : 'is-missing'}">${esc(src)}</span>
+        <label class="cast-swap">
+          换图<input type="file" accept="image/*" data-key="${k}" hidden>
+        </label>
+        <button class="cast-goto" data-key="${k}">跳转</button>
+      </li>`;
+  }).join('');
+
+  $('#cast-count').textContent = `— ${keys.filter((k) => P.has(k)).length}/${keys.length}`;
+
+  $('#cast-list').querySelectorAll('input[type=file]').forEach((inp) => {
+    inp.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const key = e.target.dataset.key;
+      try {
+        await P.setOverride(key, file);
+        buildCastList();
+        draw();
+        setStatus(`已替换 ${P.CAST[key].zh} 的人物图（仅本机，不会上传）。`);
+      } catch (err) {
+        setStatus(`图片载入失败：${err.message}`, true);
+      }
+    });
+  });
+
+  $('#cast-list').querySelectorAll('.cast-goto').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.key;
+      const plate = TIMELINE.find((s) => s.scene === 'characterPlate' && s.portrait === key);
+      if (plate) { stop(); seek(plate.start + 1.2); }
+    });
+  });
+}
+
 /* --------------------------------- wiring --------------------------------- */
 
 function bind() {
@@ -180,7 +227,7 @@ function bind() {
 
 /* ---------------------------------- init ---------------------------------- */
 
-function init() {
+async function init() {
   $('#film-title').textContent = META.title;
   $('#film-title-zh').textContent = META.titleZh;
   $('#film-source').textContent = META.source;
@@ -189,6 +236,14 @@ function init() {
 
   buildShotList();
   bind();
+  draw();
+
+  // Portraits load asynchronously; the film is watchable before they arrive
+  // and simply gains the faces once they do.
+  try {
+    await Promise.all([P.loadCast(), P.loadPlates()]);
+  } catch { /* plates fall back to name-only */ }
+  buildCastList();
   draw();
 
   if (!isSupported()) {

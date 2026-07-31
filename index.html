@@ -51,6 +51,20 @@
       <label><input type="checkbox" id="sound" checked> Score</label>
     </div>
 
+    <details class="cast">
+      <summary>人物图 · Cast portraits <span class="dim" id="cast-count"></span></summary>
+      <p class="dim tiny">
+        内置的是公有领域的明清人物画像（可公开发布）。你可以换成自己的图片——授权剧照、自己拍的、
+        任何来源都行。<b>换上的图只存在你本机，不会进仓库、不会上传。</b>
+        也可以直接把文件放进 <code>characters/</code> 目录，命名为 <code>cao-cao.jpg</code> 这样，刷新即可生效。
+      </p>
+      <p class="dim tiny">
+        Bundled portraits are public domain. Swap in your own — licensed stills, your own photography,
+        anything. Replacements stay in this browser; they are never uploaded or committed.
+      </p>
+      <ul id="cast-list" class="cast-list"></ul>
+    </details>
+
     <p id="status" class="status"></p>
   </section>
 

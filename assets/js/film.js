@@ -55,8 +55,15 @@ export const SHOTS = [
     fx: { chains: false, count: 7 },
   },
   {
-    id: 5, scene: 'deckFigure', dur: SEC(7), palette: 'night', trans: 'cut', cue: 'guqin',
+    id: 5, scene: 'characterPlate', dur: SEC(4.2), palette: 'ink', trans: 'cut', cue: 'guqin',
+    portrait: 'cao-cao',
+    slug: 'CHARACTER PLATE — CAO CAO',
+    action: 'Portrait plate. Wang Qi, Sancai Tuhui, c. 1607.',
+  },
+  {
+    id: 6, scene: 'deckFigure', dur: SEC(7), palette: 'night', trans: 'dissolve', cue: 'guqin',
     cam: [0.5, 0.5, 1.0, 0.5, 0.5, 1.14],
+    portrait: 'cao-cao',
     slug: 'EXT. THE FLAGSHIP, DECK — NIGHT',
     action: 'CAO CAO stands alone at the rail with a cup. The moon is very bright. Few stars.',
     speaker: 'CAO CAO', line: '對酒當歌，人生幾何？',
@@ -64,7 +71,7 @@ export const SHOTS = [
     fx: { moon: true, figures: 1 },
   },
   {
-    id: 6, scene: 'deckFigure', dur: SEC(7), palette: 'night', trans: 'cut', cue: 'guqin',
+    id: 7, scene: 'deckFigure', dur: SEC(7), palette: 'night', trans: 'cut', cue: 'guqin',
     cam: [0.5, 0.44, 1.2, 0.5, 0.4, 1.28],
     slug: 'EXT. THE FLAGSHIP, DECK — CONTINUOUS',
     action: 'A single crow crosses the moon, flying south. Cao Cao watches it go.',
@@ -81,8 +88,15 @@ export const SHOTS = [
     fx: { count: 5, rock: 1.6 },
   },
   {
-    id: 8, scene: 'fleetDetail', dur: SEC(6.5), palette: 'night', trans: 'cut', cue: 'unease',
+    id: 8, scene: 'characterPlate', dur: SEC(4), palette: 'ink', trans: 'cut', cue: 'unease',
+    portrait: 'pang-tong',
+    slug: 'CHARACTER PLATE — PANG TONG',
+    action: 'Portrait plate. Qing dynasty illustrated edition.',
+  },
+  {
+    id: 9, scene: 'fleetDetail', dur: SEC(6.5), palette: 'night', trans: 'dissolve', cue: 'unease',
     cam: [0.5, 0.5, 1.1, 0.5, 0.5, 1.0],
+    portrait: 'pang-tong',
     slug: 'EXT. THE FLEET — LATER',
     action: 'Iron is brought aboard. The hulls are lashed and chained, bow to stern, until the fleet is one deck.',
     speaker: 'PANG TONG', line: 'Chain the ships together, Prime Minister. Your men will not feel the river.',
@@ -105,6 +119,18 @@ export const SHOTS = [
     card: { zh: '南岸', en: 'THE SOUTHERN BANK' },
   },
   {
+    id: 110, scene: 'characterPlate', dur: SEC(4), palette: 'ink', trans: 'cut', cue: 'strings',
+    portrait: 'zhou-yu',
+    slug: 'CHARACTER PLATE — ZHOU YU',
+    action: 'Portrait plate. Qing dynasty illustrated edition.',
+  },
+  {
+    id: 111, scene: 'characterPlate', dur: SEC(4), palette: 'ink', trans: 'cut', cue: 'strings',
+    portrait: 'zhuge-liang',
+    slug: 'CHARACTER PLATE — ZHUGE LIANG',
+    action: 'Portrait plate. Sancai Tuhui, 1609.',
+  },
+  {
     id: 11, scene: 'councilTent', dur: SEC(6.5), palette: 'night', trans: 'dissolve', cue: 'strings',
     cam: [0.5, 0.5, 1.2, 0.5, 0.5, 1.05],
     slug: 'INT. ZHOU YU\'S TENT — NIGHT',
@@ -117,7 +143,7 @@ export const SHOTS = [
     cam: [0.44, 0.52, 1.35, 0.56, 0.52, 1.35],
     slug: 'INT. ZHOU YU\'S TENT — CONTINUOUS',
     action: 'Zhou Yu writes four characters on his palm and shows them. Zhuge Liang writes the same four on his own.',
-    speaker: 'ZHOU YU', line: '萬事俱備，只欠東風。',
+    portrait: 'zhou-yu', speaker: 'ZHOU YU', line: '萬事俱備，只欠東風。',
     sub: '"Everything is ready. We lack only the east wind."',
     fx: { figures: 2, palm: true },
   },
@@ -144,7 +170,7 @@ export const SHOTS = [
     cam: [0.5, 0.5, 1.0, 0.5, 0.42, 1.3],
     slug: 'EXT. THE ALTAR — CONTINUOUS',
     action: 'He raises his arms. Behind him the seven stars of the Dipper stand clear of cloud.',
-    speaker: 'ZHUGE LIANG', line: '借東風。',
+    portrait: 'zhuge-liang', speaker: 'ZHUGE LIANG', line: '借東風。',
     sub: '"Borrow the east wind."',
     fx: { figures: 1, pose: 'arms-raised', dipper: true },
   },
@@ -177,6 +203,14 @@ export const SHOTS = [
     slug: 'CHAPTER CARD',
     action: 'Ink title.',
     card: { zh: '火攻', en: 'THE FIRE ATTACK' },
+    plate: 'red-cliffs',
+    footer: '馬駘《赤壁縱火》1928',
+  },
+  {
+    id: 199, scene: 'characterPlate', dur: SEC(4), palette: 'ink', trans: 'cut', cue: 'approach',
+    portrait: 'huang-gai',
+    slug: 'CHARACTER PLATE — HUANG GAI',
+    action: 'Portrait plate. Qing dynasty illustrated edition.',
   },
   {
     id: 20, scene: 'fireShips', dur: SEC(6.5), palette: 'night', trans: 'dissolve', cue: 'approach',
@@ -246,7 +280,7 @@ export const SHOTS = [
     cam: [0.55, 0.5, 1.25, 0.42, 0.5, 1.15],
     slug: 'EXT. THE NORTHERN SHORE — CONTINUOUS',
     action: 'Cao Cao is taken off the flagship. Behind him his navy is a wall of fire a li wide.',
-    speaker: 'CAO CAO', line: 'Ride. Do not look back at it.',
+    portrait: 'cao-cao', speaker: 'CAO CAO', line: 'Ride. Do not look back at it.',
     fx: { figures: 3, glow: 1 },
   },
   {
@@ -293,11 +327,16 @@ export const SHOTS = [
 
 export const RUNTIME = SHOTS.reduce((a, s) => a + s.dur, 0);
 
-/** Cumulative start time of each shot, so the scrubber can seek. */
+/**
+ * Cumulative start time of each shot, so the scrubber can seek.
+ *
+ * Shot numbers are derived from position rather than authored, so inserting a
+ * shot mid-reel doesn't require renumbering everything after it.
+ */
 export const TIMELINE = (() => {
   let t = 0;
-  return SHOTS.map((s) => {
-    const entry = { ...s, start: t, end: t + s.dur };
+  return SHOTS.map((s, i) => {
+    const entry = { ...s, id: i + 1, start: t, end: t + s.dur };
     t += s.dur;
     return entry;
   });

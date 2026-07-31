@@ -163,3 +163,31 @@ footer {
   font-size: 12.5px; color: var(--dim); max-width: 900px;
 }
 footer b { color: var(--ink); font-weight: 600; }
+
+/* --------------------------------- cast ----------------------------------- */
+
+.cast { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 12px; }
+.cast summary {
+  cursor: pointer; font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--dim); list-style: none;
+}
+.cast summary::-webkit-details-marker { display: none; }
+.cast summary::before { content: '▸ '; color: var(--faint); }
+.cast[open] summary::before { content: '▾ '; }
+.cast > p { margin: 10px 0 0; max-width: 760px; line-height: 1.6; }
+.cast code { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+
+.cast-list { list-style: none; margin: 12px 0 4px; padding: 0; }
+.cast-row {
+  display: grid; grid-template-columns: 190px 1fr auto auto; gap: 10px;
+  align-items: center; padding: 7px 0; border-bottom: 1px solid #1e1e23; font-size: 13px;
+}
+.cast-name { font-family: var(--cjk); }
+.cast-name .dim { font-family: var(--serif); font-size: 11px; letter-spacing: .06em; }
+.cast-src { font-family: var(--cjk); font-size: 11.5px; color: var(--faint); }
+.cast-src.is-missing { color: var(--rust); }
+.cast-swap, .cast-goto {
+  background: var(--panel-2); border: 1px solid var(--line); color: var(--dim);
+  border-radius: 4px; padding: 4px 10px; font: inherit; font-size: 11.5px; cursor: pointer;
+}
+.cast-swap:hover, .cast-goto:hover { border-color: var(--faint); color: var(--ink); }

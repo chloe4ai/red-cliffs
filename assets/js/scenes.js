@@ -1,4 +1,5 @@
 import * as I from './ink.js';
+import * as P from './portraits.js';
 
 /**
  * scenes.js — one composition function per scene type.
@@ -19,6 +20,23 @@ function inkTitle(ctx, W, H, pal, t, p, shot, { big = true } = {}) {
   // Ink settles into the paper over the first beat.
   const settle = I.easeOut(Math.min(1, t / 1.6));
   const card = shot.card || {};
+
+  // Optional period artwork behind the card, held well back so the title still
+  // carries. Slow drift keeps it from reading as a flat pasted-in scan.
+  if (shot.plate && P.has(shot.plate)) {
+    const k = I.easeInOut(Math.min(1, t / 2.2));
+    const zoom = 1 + p * 0.05;
+    const bw = W * 1.02 * zoom;
+    const bh = H * 1.02 * zoom;
+    P.drawPortrait(ctx, shot.plate, [(W - bw) / 2, (H - bh) / 2 - p * 8, bw, bh], {
+      inkColor: '#2b2c30', paperColor: pal.bg[0], alpha: 0.30 * k, feathered: true,
+    });
+    ctx.save();
+    ctx.globalAlpha = 0.55;
+    ctx.fillStyle = pal.bg[0];
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+  }
 
   ctx.save();
   ctx.textAlign = 'center';
@@ -56,6 +74,77 @@ export function chapterCard(ctx, W, H, pal, t, p, shot) { inkTitle(ctx, W, H, pa
 
 export function endCard(ctx, W, H, pal, t, p, shot) {
   inkTitle(ctx, W, H, pal, t, p, shot, { big: true });
+}
+
+/* ---------------------------- character plate ----------------------------- */
+
+/**
+ * The card that introduces a figure: portrait, name, rank, and the provenance
+ * of the image. Provenance is on screen deliberately — these portraits are
+ * genuine historical artefacts, and a 1607 woodblock deserves its credit in
+ * frame rather than buried in a README.
+ */
+export function characterPlate(ctx, W, H, pal, t, p, shot) {
+  const key = shot.portrait;
+  const entry = P.CAST[key] || {};
+  I.paper(ctx, W, H, pal);
+
+  const inA = I.easeOut(I.clamp01(t / 0.9));
+  const outA = I.clamp01((shot.dur - t) / 0.5);
+  const a = inA * outA;
+
+  // A wash of ink behind the figure, so the plate is not a floating cutout.
+  I.bleed(ctx, W * 0.30, H * 0.53, H * 0.42, 'rgba(40,42,48,0.10)', a);
+
+  const boxW = W * 0.30;
+  const boxH = H * 0.66;
+  const bx = W * 0.13;
+  const by = H * 0.19;
+  const drift = (1 - inA) * 14;   // settles into place rather than snapping in
+  const drawn = P.drawPortrait(ctx, key, [bx, by + drift, boxW, boxH], {
+    inkColor: '#191b1f', paperColor: pal.bg[0], alpha: a,
+  });
+
+  const tx = W * 0.50;
+  ctx.save();
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+
+  ctx.globalAlpha = a;
+  ctx.fillStyle = pal.text;
+  ctx.font = `76px ${CJK}`;
+  ctx.fillText(entry.zh || '', tx, H * 0.46);
+
+  ctx.globalAlpha = a * 0.9;
+  ctx.font = `24px ${LATIN}`;
+  ctx.letterSpacing = '10px';
+  ctx.fillText(entry.en || '', tx + 2, H * 0.545);
+  ctx.letterSpacing = '0px';
+
+  ctx.globalAlpha = a * 0.35;
+  ctx.fillRect(tx + 2, H * 0.585, W * 0.20, 1);
+
+  ctx.globalAlpha = a * 0.78;
+  ctx.font = `26px ${CJK}`;
+  ctx.fillText(entry.roleZh || '', tx + 2, H * 0.645);
+  ctx.globalAlpha = a * 0.55;
+  ctx.font = `15px ${LATIN}`;
+  ctx.fillText(entry.roleEn || '', tx + 2, H * 0.685);
+
+  // Provenance of the portrait itself.
+  const src = P.has(key) ? P.info(key).source : entry.source;
+  ctx.globalAlpha = a * 0.45 * I.clamp01((t - 1.1) / 0.8);
+  ctx.font = `13px ${CJK}`;
+  ctx.fillText(src || '', tx + 2, H * 0.76);
+
+  if (!drawn) {
+    ctx.globalAlpha = a * 0.4;
+    ctx.font = `13px ${LATIN}`;
+    ctx.fillText('[ portrait loading ]', bx, by + boxH / 2);
+  }
+  ctx.restore();
+
+  I.grain(ctx, W, H, 0.07);
 }
 
 /* ------------------------------- river wide ------------------------------- */
@@ -708,6 +797,7 @@ export function dawnWreck(ctx, W, H, pal, t, p, shot) {
 }
 
 export const SCENES = {
+  characterPlate,
   titleCard, chapterCard, endCard, riverWide, fleetDetail, deckFigure,
   councilTent, altar, windBanners, fireShips, inferno, fleeing, dawnWreck,
 };

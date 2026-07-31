@@ -1,6 +1,7 @@
 import { SCENES } from './scenes.js';
 import { TIMELINE, RUNTIME } from './film.js';
 import * as I from './ink.js';
+import * as P from './portraits.js';
 
 /**
  * engine.js — turns the screenplay into frames.
@@ -102,6 +103,7 @@ export class Engine {
     ctx.fillRect(0, 0, W, H * BAR);
     ctx.fillRect(0, H * (1 - BAR), W, H * BAR);
 
+    this.cutIn(shot, local);
     this.captions(shot, local);
     if (this.showSlate) this.slate(shot, local, time);
 
@@ -118,6 +120,53 @@ export class Engine {
       ctx.fillStyle = `rgba(0,0,0,${dark})`;
       ctx.fillRect(0, 0, W, H);
     }
+  }
+
+  /**
+   * Portrait cut-in for a line of dialogue.
+   *
+   * Rides over the live scene in the left third rather than replacing it, so
+   * the shot keeps playing behind the speaker's face. Tinted into the shot's
+   * own palette — a paper-white portrait dropped onto a night river would read
+   * as a sticker.
+   */
+  cutIn(shot, local) {
+    if (!shot.portrait || shot.scene === 'characterPlate') return;
+    if (!P.has(shot.portrait)) return;
+
+    const fade = Math.min(
+      I.clamp01((local - 0.35) / 0.7),
+      I.clamp01((shot.dur - local - 0.4) / 0.7),
+    );
+    if (fade <= 0) return;
+
+    const { ctx, W, H } = this;
+    const pal = I.PALETTES[shot.palette] || I.PALETTES.night;
+
+    // Roughly the aspect of the head crops, so the fit doesn't shave the chin
+    // and beard off — the first version cropped Cao Cao at the jaw.
+    const bw = W * 0.215;
+    const bh = H * 0.50;
+    const bx = W * 0.055;
+    const by = H * 0.5 - bh / 2;
+    const rise = (1 - fade) * 18;
+    const cx = bx + bw / 2;
+    const cy = by + bh / 2 + rise;
+
+    // A wash of paper behind the face rather than an inverted portrait.
+    // Rendering the woodblock in white ink on the night sky reads as a photo
+    // negative; a paper ground keeps it dark-on-light the way it was cut.
+    ctx.save();
+    ctx.globalAlpha = fade * 0.9;
+    I.bleed(ctx, cx, cy, bh * 0.62, 'rgba(233,226,208,1)', 0.88);
+    I.bleed(ctx, cx, cy, bh * 0.44, 'rgba(240,234,219,1)', 0.9);
+    ctx.restore();
+
+    P.drawFace(ctx, shot.portrait, [bx, by + rise, bw, bh], {
+      inkColor: '#171a1e',
+      paperColor: '#e9e2d0',
+      alpha: fade * 0.97,
+    });
   }
 
   /** Dialogue and narration. Fades in and out so nothing pops. */

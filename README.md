@@ -6,11 +6,14 @@ An **animatic** of the Battle of Red Cliffs, adapted from *Romance of the Three 
 33 shots, 3 minutes 21 seconds, with a synthesised score — and it exports a real `.webm`
 video file you can play anywhere.
 
-**Every frame is drawn procedurally in code.** There is no photography, no stock footage
-and no generated imagery anywhere in this repository. The visual language is ink-wash
-(水墨) because that is a register code can actually execute well — silhouette, value,
-negative space and bleed rather than texture and detail — and because a night river battle
-of burning ships is exactly what ink is good at.
+**Every scene is drawn procedurally in code**, with one deliberate exception: the human
+faces. Those are genuine **public-domain historical portraits** — Ming woodblock and Qing
+繡像 — normalised into the film's own ink and paper (see [Portraits](#portraits)). There is
+no stock footage and no AI-generated imagery anywhere in the repository.
+
+The visual language is ink-wash (水墨) because that is a register code can actually execute
+well — silhouette, value, negative space and bleed rather than texture and detail — and
+because a night river battle of burning ships is exactly what ink is good at.
 
 ---
 
@@ -30,6 +33,50 @@ shoots, to test whether a sequence works. It is a complete, finished thing of it
 *Romance of the Three Kingdoms* is attributed to Luo Guanzhong, c. 14th century, and is
 **public domain**. It can be adapted freely, which is why it was chosen. A living author's
 work — Mo Yan, for instance — could not be adapted this way without optioned film rights.
+
+The same reasoning governs the portraits. Stills from *The Advisors Alliance* (軍師聯盟),
+the 1994 CCTV *Three Kingdoms* or the 2010 series are **copyrighted audiovisual works**, and
+the actors have likeness rights on top of that — so they are not in this repository and
+should not be added to it. The bundled portraits are pre-20th-century works whose copyright
+has expired. If you want live-action faces, use the local override path below, which keeps
+them on your machine and out of the published repo.
+
+## Portraits
+
+Five characters get a portrait plate on first appearance and a cut-in when they speak.
+
+| Character | Portrait | Source | Status |
+|---|---|---|---|
+| 曹操 Cao Cao | bust | 王圻《三才圖會》c. 1607 | Public domain |
+| 諸葛亮 Zhuge Liang | bust | 《三才圖會》萬曆三十七年 (1609) | Public domain |
+| 周瑜 Zhou Yu | full length | 清代繡像本 | Public domain |
+| 黃蓋 Huang Gai | full length | 清代繡像本 | Public domain |
+| 龐統 Pang Tong | full length | 清代繡像本 | Public domain |
+
+All five are from Wikimedia Commons; per-file URLs, artists, dates and licences are recorded
+in [`assets/portraits/sources.json`](assets/portraits/sources.json). Provenance is also
+printed on each plate in-frame, because a 1607 woodblock deserves its credit on screen
+rather than buried in a README.
+
+### Using your own images
+
+A Ming woodblock, a Qing line drawing and a modern photograph have nothing in common
+tonally, and dropping them into one film unedited looks like three different productions.
+So every portrait goes through the same normalisation — auto levels, duotone into the
+film's ink and paper, grain, feathered edge. Line art and photographs need different
+handling (turning a photo into an alpha mask destroys its midtones), so the mode is
+**detected from the image itself**.
+
+That is what makes swapping in your own material work. Two ways:
+
+1. **Cast portraits panel** in the page — pick a file per character. Applies immediately,
+   lives only in that browser tab.
+2. **`characters/` directory** — drop in `cao-cao.jpg`, `zhou-yu.png`, and so on, then
+   refresh. The engine prefers these over the bundled portraits.
+
+`characters/` is **gitignored**. Nothing you put there is committed or uploaded. That is the
+point: use licensed stills or your own photography privately, without putting anything into
+a public repository that shouldn't be there.
 
 ## Running it
 
@@ -70,13 +117,16 @@ Export needs Chrome or Edge. Playback works everywhere.
 
 ```
 assets/js/
-  film.js      the screenplay — 33 shots with slugs, action, camera, dialogue, cues
-  ink.js       the ink-wash drawing library (brush, bleed, ridge, water, junk, flame, smoke)
-  scenes.js    one composition function per scene type
-  engine.js    timeline, camera, transitions, captions, letterbox
-  audio.js     the score, synthesised with Web Audio — no audio files
-  export.js    canvas capture → WebM
-  app.js       transport, shot list, wiring
+  film.js       the screenplay — 38 shots with slugs, action, camera, dialogue, cues
+  ink.js        the ink-wash drawing library (brush, bleed, ridge, water, junk, flame, smoke)
+  scenes.js     one composition function per scene type
+  portraits.js  portrait loading, tonal normalisation, plates and cut-ins
+  engine.js     timeline, camera, transitions, captions, letterbox
+  audio.js      the score, synthesised with Web Audio — no audio files
+  export.js     canvas capture → WebM
+  app.js        transport, shot list, cast panel, wiring
+assets/portraits/   bundled public-domain portraits + sources.json
+characters/         your own images (gitignored, never committed)
 ```
 
 `film.js` is the actual creative document: change a duration, a camera move or a line of
