@@ -201,6 +201,122 @@ function buildCastList() {
   });
 }
 
+/* ------------------------------ frame grabber ------------------------------ */
+
+/**
+ * Pull a portrait straight out of a video file.
+ *
+ * Better than hunting for stills: full resolution, you choose the exact
+ * expression, and nothing leaves the machine. The file is read through a blob
+ * URL, so it is same-origin and the frame canvas stays untainted — a
+ * cross-origin frame would kill the film's own export.
+ */
+const grab = { url: null, video: null };
+
+function openGrabber(file) {
+  const v = $('#grab-video');
+  if (grab.url) URL.revokeObjectURL(grab.url);
+  grab.url = URL.createObjectURL(file);
+  v.src = grab.url;
+  grab.video = v;
+
+  $('#grab-who').innerHTML = Object.entries(P.CAST)
+    .map(([k, c]) => `<option value="${k}">${esc(c.zh.replace(/\s/g, ''))} · ${esc(c.en)}</option>`).join('');
+  $('#grab-status').textContent = '';
+  $('#grabber').showModal();
+
+  v.onloadedmetadata = () => {
+    $('#grab-scrub').value = '0';
+    $('#grab-clock').textContent = `${fmt(0)} / ${fmt(v.duration || 0)}`;
+  };
+  v.ontimeupdate = () => {
+    if (!v.duration) return;
+    $('#grab-scrub').value = String((v.currentTime / v.duration) * 1000);
+    $('#grab-clock').textContent = `${fmt(v.currentTime)} / ${fmt(v.duration)}`;
+  };
+}
+
+function grabFrame() {
+  const v = grab.video;
+  if (!v || !v.videoWidth) return null;
+  const c = document.createElement('canvas');
+  c.width = v.videoWidth;
+  c.height = v.videoHeight;
+  c.getContext('2d').drawImage(v, 0, 0);
+  return c;
+}
+
+function bindGrabber() {
+  $('#grab-file').addEventListener('change', (e) => {
+    const f = e.target.files?.[0];
+    if (f) openGrabber(f);
+    e.target.value = '';
+  });
+
+  $('#grab-play').addEventListener('click', () => {
+    const v = grab.video;
+    if (!v) return;
+    if (v.paused) { v.play(); $('#grab-play').textContent = '❚❚'; }
+    else { v.pause(); $('#grab-play').textContent = '▶'; }
+  });
+
+  $('#grab-scrub').addEventListener('input', (e) => {
+    const v = grab.video;
+    if (!v?.duration) return;
+    v.pause();
+    $('#grab-play').textContent = '▶';
+    v.currentTime = (Number(e.target.value) / 1000) * v.duration;
+  });
+
+  // Roughly a frame at 25fps — enough to land on the expression you want.
+  $('#grab-back').addEventListener('click', () => { if (grab.video) { grab.video.pause(); grab.video.currentTime = Math.max(0, grab.video.currentTime - 0.04); } });
+  $('#grab-fwd').addEventListener('click', () => { if (grab.video) { grab.video.pause(); grab.video.currentTime += 0.04; } });
+
+  $('#grab-take').addEventListener('click', async () => {
+    const c = grabFrame();
+    if (!c) { $('#grab-status').textContent = '这一帧还没解码出来，稍等一下再试。'; return; }
+    const key = $('#grab-who').value;
+    const blob = await new Promise((r) => c.toBlob(r, 'image/jpeg', 0.94));
+    await P.setOverride(key, new File([blob], `${key}.jpg`, { type: 'image/jpeg' }));
+    buildCastList();
+    draw();
+    $('#grab-status').textContent = `已用作 ${P.CAST[key].zh.replace(/\s/g, '')} 的人物图（${c.width}×${c.height}）。`;
+    setStatus(`已从视频截取 ${P.CAST[key].zh.replace(/\s/g, '')} 的人物图 — 仅本机。`);
+  });
+
+  $('#grab-save').addEventListener('click', async () => {
+    const c = grabFrame();
+    if (!c) return;
+    const key = $('#grab-who').value;
+    const blob = await new Promise((r) => c.toBlob(r, 'image/jpeg', 0.94));
+    download(blob, `${key}.jpg`);
+    $('#grab-status').textContent = `已下载 ${key}.jpg — 放进 characters/ 目录即可长期生效。`;
+  });
+
+  $('#grab-close').addEventListener('click', () => {
+    grab.video?.pause();
+    $('#grab-play').textContent = '▶';
+    $('#grabber').close();
+  });
+
+  // Dropping an image anywhere on the page assigns it to the character whose
+  // plate is currently on screen — the fastest possible swap.
+  document.addEventListener('dragover', (e) => { e.preventDefault(); });
+  document.addEventListener('drop', async (e) => {
+    const f = e.dataTransfer?.files?.[0];
+    if (!f) return;
+    e.preventDefault();
+    if (f.type.startsWith('video/')) { openGrabber(f); return; }
+    if (!f.type.startsWith('image/')) return;
+    const shot = TIMELINE.find((s) => s.id === state.shotId);
+    const key = shot?.portrait || Object.keys(P.CAST)[0];
+    await P.setOverride(key, f);
+    buildCastList();
+    draw();
+    setStatus(`已替换 ${P.CAST[key].zh.replace(/\s/g, '')} 的人物图（拖放）— 仅本机。`);
+  });
+}
+
 /* --------------------------------- wiring --------------------------------- */
 
 function bind() {
@@ -236,6 +352,7 @@ async function init() {
 
   buildShotList();
   bind();
+  bindGrabber();
   draw();
 
   // Portraits load asynchronously; the film is watchable before they arrive

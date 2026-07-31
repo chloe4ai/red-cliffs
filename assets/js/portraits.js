@@ -246,13 +246,24 @@ function hexToRgb(x) {
  * in a hard rectangle — a visible photo border is the thing that makes a
  * composited still look pasted on.
  */
-function feather(ctx, x, y, w, h, inset = 0.14) {
-  const g = ctx.createRadialGradient(x + w / 2, y + h / 2, Math.min(w, h) * (0.5 - inset), x + w / 2, y + h / 2, Math.max(w, h) * 0.62);
-  g.addColorStop(0, 'rgba(0,0,0,1)');
-  g.addColorStop(1, 'rgba(0,0,0,0)');
+function feather(ctx, x, y, w, h, inset = 0.16) {
+  // Work in a unit circle scaled to the box, so the falloff reaches full
+  // transparency at every edge and corner rather than only along the long
+  // axis. A circular gradient sized off max(w,h) leaves the short edges hard,
+  // which is exactly what made an opaque photograph read as a pasted-in
+  // rectangle.
+  ctx.save();
   ctx.globalCompositeOperation = 'destination-in';
+  ctx.translate(x + w / 2, y + h / 2);
+  ctx.scale(w / 2, h / 2);
+  const g = ctx.createRadialGradient(0, 0, 0, 0, 0, 1);
+  g.addColorStop(0, 'rgba(0,0,0,1)');
+  g.addColorStop(Math.max(0, 1 - inset * 2.4), 'rgba(0,0,0,1)');
+  g.addColorStop(0.94, 'rgba(0,0,0,0.35)');
+  g.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = g;
-  ctx.fillRect(x, y, w, h);
+  ctx.fillRect(-1, -1, 2, 2);
+  ctx.restore();
   ctx.globalCompositeOperation = 'source-over';
 }
 
@@ -278,7 +289,9 @@ export function drawPortrait(ctx, key, box, { inkColor = '#14141a', paperColor =
   buf.height = Math.max(1, Math.round(bh));
   const bg = buf.getContext('2d');
   bg.drawImage(t.canvas, sx, sy, sw, sh, 0, 0, buf.width, buf.height);
-  if (feathered) feather(bg, 0, 0, buf.width, buf.height);
+  // A photograph is opaque edge to edge and needs a deeper falloff than line
+  // art, which is mostly transparent paper already.
+  if (feathered) feather(bg, 0, 0, buf.width, buf.height, t.mode === 'photo' ? 0.24 : 0.14);
 
   ctx.save();
   ctx.globalAlpha = alpha;

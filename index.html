@@ -63,7 +63,44 @@
         anything. Replacements stay in this browser; they are never uploaded or committed.
       </p>
       <ul id="cast-list" class="cast-list"></ul>
+
+      <div class="grab">
+        <label class="grab-open">
+          从视频抓帧 · Grab from video
+          <input type="file" id="grab-file" accept="video/*" hidden>
+        </label>
+        <span class="dim tiny">
+          有片源就不必找剧照：拖入视频文件，拉到你要的那一帧，直接截出人物图。
+          全分辨率，全程在本机，文件不会被读走也不会上传。
+        </span>
+      </div>
     </details>
+
+    <dialog id="grabber" class="grabber">
+      <div class="grab-stage">
+        <video id="grab-video" playsinline></video>
+      </div>
+      <div class="grab-controls">
+        <button class="tbtn" id="grab-play">▶</button>
+        <input type="range" id="grab-scrub" min="0" max="1000" value="0" step="1" aria-label="Scrub video">
+        <span class="clock" id="grab-clock">00:00</span>
+      </div>
+      <div class="grab-controls">
+        <button class="tbtn" id="grab-back">−1 帧</button>
+        <button class="tbtn" id="grab-fwd">+1 帧</button>
+        <select id="grab-who" aria-label="Assign to character"></select>
+        <button class="tbtn tbtn-primary" id="grab-take">截取这一帧</button>
+        <button class="tbtn" id="grab-close">关闭</button>
+      </div>
+      <p class="dim tiny" id="grab-note">
+        截下的帧会立刻套用和内置画像相同的处理。想长期保留，点「下载这一帧」存进
+        <code>characters/</code> 目录。
+      </p>
+      <div class="grab-controls">
+        <button class="tbtn" id="grab-save">下载这一帧</button>
+        <span class="dim tiny" id="grab-status"></span>
+      </div>
+    </dialog>
 
     <p id="status" class="status"></p>
   </section>

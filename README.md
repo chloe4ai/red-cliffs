@@ -67,16 +67,27 @@ film's ink and paper, grain, feathered edge. Line art and photographs need diffe
 handling (turning a photo into an alpha mask destroys its midtones), so the mode is
 **detected from the image itself**.
 
-That is what makes swapping in your own material work. Two ways:
+That is what makes swapping in your own material work. Three ways:
 
-1. **Cast portraits panel** in the page — pick a file per character. Applies immediately,
-   lives only in that browser tab.
-2. **`characters/` directory** — drop in `cao-cao.jpg`, `zhou-yu.png`, and so on, then
-   refresh. The engine prefers these over the bundled portraits.
+1. **Grab a frame from video** — the best option if you have the footage. Drop a video file
+   onto the page, scrub to the frame you want, step a frame at a time, and capture. Full
+   resolution, your choice of expression, no hunting for stills. Verified end to end: a
+   1280×720 frame goes from video to portrait without leaving the machine.
+2. **Cast portraits panel** — pick an image file per character. Applies immediately.
+3. **`characters/` directory** — drop in `cao-cao.jpg`, `zhou-yu.png`, and so on, then
+   refresh. The engine prefers these over the bundled portraits. Dragging an image onto the
+   page assigns it to whichever character is on screen.
 
-`characters/` is **gitignored**. Nothing you put there is committed or uploaded. That is the
-point: use licensed stills or your own photography privately, without putting anything into
-a public repository that shouldn't be there.
+Everything you supply stays in the browser (or in `characters/`, which is **gitignored**).
+Nothing is uploaded, and nothing is committed. That is the point: use licensed stills or
+your own footage privately, without putting anything into a public repository that
+shouldn't be there.
+
+One implementation constraint worth knowing if you extend this: images and video frames
+must be **same-origin** — bundled files, `characters/`, or a `blob:` URL from a local file.
+A cross-origin image taints the canvas, and a tainted canvas silently kills `toDataURL` and
+`captureStream`, which means the film can no longer be exported at all. That is checked
+after every change.
 
 ## Running it
 
